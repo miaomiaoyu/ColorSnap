@@ -49,9 +49,10 @@
     </div>
     <div id="imageContainer" style="text-align: center; margin-top: 20px;"></div>
     <div id="colorContainer" class="color-display"></div>
-
+    
     <script>
         function processImage() {
+            
             const fileInput = document.getElementById("imageUpload");
             const nColors = document.getElementById("nColors").value;
             const imageContainer = document.getElementById("imageContainer");
@@ -90,9 +91,18 @@
                     // Print the entire response data to the console
                     console.log("Response Data:", data);
 
-                    // Display the extracted colors
+                    // Replace the fetch call with static data for testing
+                    const staticData = {
+                        colors: [
+                            [255, 0, 0],
+                            [0, 255, 0],
+                            [0, 0, 255]
+                        ]
+                    };
+
+                    // Simulate the response handling
                     colorContainer.innerHTML = "";
-                    data.colors.forEach((color) => {
+                    staticData.colors.forEach((color) => {
                         const colorBox = document.createElement("div");
                         colorBox.className = "color-box";
                         colorBox.style.backgroundColor = `rgb(${color[0]}, ${color[1]}, ${color[2]})`;
@@ -102,9 +112,6 @@
                         colorInfo.className = "color-info";
                         colorInfo.textContent = `RGB: ${color[0]}, ${color[1]}, ${color[2]}`;
                         colorContainer.appendChild(colorInfo);
-
-                        // Print each color to the console
-                        console.log(`Color: RGB(${color[0]}, ${color[1]}, ${color[2]})`);
                     });
                 })
                 .catch((error) => {
