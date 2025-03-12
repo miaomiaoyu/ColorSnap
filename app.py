@@ -1,8 +1,9 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, send_file
 import numpy as np
 from PIL import Image
 from sklearn.cluster import KMeans
 import logging
+import io
 
 app = Flask(__name__)
 
@@ -50,9 +51,47 @@ def process_image():
         # Process the image
         color_clusters = cluster_image_rgb_values(image, n_colors=n_colors)
         logger.info(f"Successfully processed image with {n_colors} colors")
+
+        # Return JSON response
         return jsonify({"colors": color_clusters.tolist()})
     except Exception as e:
         logger.error(f"Error processing image: {e}")
+        return jsonify({"error": str(e)}), 500
+
+@app.route("/download_palette", methods=["POST"])
+def download_palette():
+    """Generate and return a downloadable JSON file of the color palette."""
+    if "image" not in request.files:
+        logger.error("No image uploaded")
+        return jsonify({"error": "No image uploaded"}), 400
+
+    file = request.files["image"]
+    n_colors = request.form.get("n_colors", default=10, type=int)
+
+    try:
+        # Open and validate the image
+        image = Image.open(file)
+        image.verify()
+        image = Image.open(file)
+
+        # Process the image
+        color_clusters = cluster_image_rgb_values(image, n_colors=n_colors)
+        palette = {"colors": color_clusters.tolist()}
+
+        # Create a JSON file in memory
+        json_file = io.BytesIO()
+        json_file.write(jsonify(palette).data)
+        json_file.seek(0)
+
+        # Return the file as a downloadable response
+        return send_file(
+            json_file,
+            mimetype="application/json",
+            as_attachment=True,
+            download_name="palette.json"
+        )
+    except Exception as e:
+        logger.error(f"Error generating palette: {e}")
         return jsonify({"error": str(e)}), 500
 
 if __name__ == "__main__":

@@ -33,6 +33,10 @@
             margin-top: 5px;
             color: #000;
         }
+        .palette {
+            margin-top: 20px;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
@@ -47,15 +51,21 @@
     </div>
     <div id="imageContainer" style="text-align: center; margin-top: 20px;"></div>
     <div id="colorContainer" class="color-display"></div>
+    <div id="paletteContainer" class="palette"></div>
     
     <script>
         document.getElementById("processButton").addEventListener("click", processImage);
+
+        function rgbToHex(r, g, b) {
+            return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1).toUpperCase();
+        }
 
         function processImage() {
             const fileInput = document.getElementById("imageUpload");
             const nColors = document.getElementById("nColors").value;
             const imageContainer = document.getElementById("imageContainer");
             const colorContainer = document.getElementById("colorContainer");
+            const paletteContainer = document.getElementById("paletteContainer");
 
             if (!fileInput.files[0]) {
                 alert("Please upload an image first.");
@@ -87,30 +97,40 @@
             })
             .then((data) => {
                 if (data.error) {
-                    console.error("Error:", data.error); // Print error to the console
+                    console.error("Error:", data.error);
                     alert(data.error);
                     return;
                 }
 
-                // Print the entire response data to the console
-                console.log("Response Data:", data);
+                // Clear previous colors and palette
+                colorContainer.innerHTML = "";
+                paletteContainer.innerHTML = "";
 
                 // Process and display the extracted colors
-                colorContainer.innerHTML = ""; // Clear previous colors
                 data.colors.forEach((color) => {
+                    const [r, g, b] = color;
+                    const hex = rgbToHex(r, g, b);
+
+                    // Display color box
                     const colorBox = document.createElement("div");
                     colorBox.className = "color-box";
-                    colorBox.style.backgroundColor = `rgb(${color[0]}, ${color[1]}, ${color[2]})`;
+                    colorBox.style.backgroundColor = `rgb(${r}, ${g}, ${b})`;
                     colorContainer.appendChild(colorBox);
 
+                    // Display color info (RGB and HEX)
                     const colorInfo = document.createElement("div");
                     colorInfo.className = "color-info";
-                    colorInfo.textContent = `RGB: ${color[0]}, ${color[1]}, ${color[2]}`;
+                    colorInfo.textContent = `RGB: ${r}, ${g}, ${b} | HEX: ${hex}`;
                     colorContainer.appendChild(colorInfo);
+
+                    // Add to palette
+                    const paletteItem = document.createElement("div");
+                    paletteItem.textContent = `RGB: ${r}, ${g}, ${b} | HEX: ${hex}`;
+                    paletteContainer.appendChild(paletteItem);
                 });
             })
             .catch((error) => {
-                console.error("Fetch Error:", error); // Print fetch errors to the console
+                console.error("Fetch Error:", error);
             });
         }
     </script>
