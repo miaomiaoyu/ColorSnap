@@ -21,14 +21,12 @@
             flex-wrap: wrap;
             justify-content: center;
             margin-top: 20px;
-            color: #000;
         }
         .color-box {
             width: 100px;
             height: 100px;
             margin: 10px;
             border: 1px solid #000;
-            color: #000;
         }
         .color-info {
             text-align: center;
@@ -45,14 +43,15 @@
         <label for="nColors">Number of Colors:</label>
         <input type="number" id="nColors" min="2" max="20" value="10" />
         <br /><br />
-        <button onclick="processImage()">Extract Colors</button>
+        <button id="processButton">Extract Colors</button>
     </div>
     <div id="imageContainer" style="text-align: center; margin-top: 20px;"></div>
     <div id="colorContainer" class="color-display"></div>
     
     <script>
+        document.getElementById("processButton").addEventListener("click", processImage);
+
         function processImage() {
-            
             const fileInput = document.getElementById("imageUpload");
             const nColors = document.getElementById("nColors").value;
             const imageContainer = document.getElementById("imageContainer");
@@ -80,43 +79,39 @@
                 method: "POST",
                 body: formData,
             })
-                .then((response) => response.json())
-                .then((data) => {
-                    if (data.error) {
-                        console.error("Error:", data.error); // Print error to the console
-                        alert(data.error);
-                        return;
-                    }
+            .then((response) => {
+                if (!response.ok) {
+                    throw new Error("Network response was not ok");
+                }
+                return response.json();
+            })
+            .then((data) => {
+                if (data.error) {
+                    console.error("Error:", data.error); // Print error to the console
+                    alert(data.error);
+                    return;
+                }
 
-                    // Print the entire response data to the console
-                    console.log("Response Data:", data);
+                // Print the entire response data to the console
+                console.log("Response Data:", data);
 
-                    // Replace the fetch call with static data for testing
-                    const staticData = {
-                        colors: [
-                            [255, 0, 0],
-                            [0, 255, 0],
-                            [0, 0, 255]
-                        ]
-                    };
+                // Process and display the extracted colors
+                colorContainer.innerHTML = ""; // Clear previous colors
+                data.colors.forEach((color) => {
+                    const colorBox = document.createElement("div");
+                    colorBox.className = "color-box";
+                    colorBox.style.backgroundColor = `rgb(${color[0]}, ${color[1]}, ${color[2]})`;
+                    colorContainer.appendChild(colorBox);
 
-                    // Simulate the response handling
-                    colorContainer.innerHTML = "";
-                    staticData.colors.forEach((color) => {
-                        const colorBox = document.createElement("div");
-                        colorBox.className = "color-box";
-                        colorBox.style.backgroundColor = `rgb(${color[0]}, ${color[1]}, ${color[2]})`;
-                        colorContainer.appendChild(colorBox);
-
-                        const colorInfo = document.createElement("div");
-                        colorInfo.className = "color-info";
-                        colorInfo.textContent = `RGB: ${color[0]}, ${color[1]}, ${color[2]}`;
-                        colorContainer.appendChild(colorInfo);
-                    });
-                })
-                .catch((error) => {
-                    console.error("Fetch Error:", error); // Print fetch errors to the console
+                    const colorInfo = document.createElement("div");
+                    colorInfo.className = "color-info";
+                    colorInfo.textContent = `RGB: ${color[0]}, ${color[1]}, ${color[2]}`;
+                    colorContainer.appendChild(colorInfo);
                 });
+            })
+            .catch((error) => {
+                console.error("Fetch Error:", error); // Print fetch errors to the console
+            });
         }
     </script>
 </body>
