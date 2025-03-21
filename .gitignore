@@ -1,1 +1,39 @@
+# Ignore node_modules directory
+node_modules/
+data/
 test/
+
+# Ignore IDE-specific files
+.vscode/
+.idea/
+
+# Ignore environment files
+.env
+
+# Ignore Git-related files
+.git/
+.gitattributes
+
+# Ignore Jupyter Notebook checkpoints
+*.ipynb_checkpoints/
+*.ipynb
+
+# Ignore compiled Python files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Ignore macOS system files
+**/*.DS_Store
+
+# Ignore logs and temporary files
+logs/
+*.log
+*.out
+*.err
+
+# Ignore cache files
+*.cache
+.cache/
+.ipython/
